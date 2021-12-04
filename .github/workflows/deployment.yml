@@ -1,0 +1,77 @@
+name: lambda-alb-helloworld
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout-repo
+        uses: actions/checkout@v2
+
+      - name: unit-testing
+        run: |
+          python3 -V # Print python version for debug
+          pip3 install pytest
+          pip3 install -r requirements.txt
+          pytest --verbose
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout-repo
+        uses: actions/checkout@v2
+
+      - name: build-package
+        run: |
+          apt-get update -qy
+          apt install zip -y
+          pip3 install -r requirements.txt -t ./package
+          zip -r $CI_PROJECT_DIR/handler.zip . --exclude .gitlab-ci.yml --exclude ".git*" --exclude .gitignore --exclude requirements.txt --exclude README.md --exclude "tests/*" --exclude stack.yaml
+
+      - name: create-artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: package.zip
+          path: ./package.zip
+
+  deploy:
+    runs-on: 	ubuntu-latest
+    steps:
+      - name: checkout-repo
+        uses: actions/checkout@v2
+
+      - name: configure-aws
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: upload-handler
+        env:
+          BUCKET_NAME: ${{ secrets.AWS_BUCKET_NAME }}
+        run: |
+          aws --version
+          aws s3 rm s3://$BUCKET_NAME --recursive --region $AWS_DEFAULT_REGION
+          aws s3 cp ./handler.zip s3://$BUCKET_NAME --region $AWS_DEFAULT_REGION
+
+      - name: Deploy to AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: lambda-alb-helloworld
+          template: stack.yaml
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides: >-
+            SubnetsPublic=${{ secrets.AWS_PUBLIC_SUBNET_1 }},
+            SubnetsPublic=${{ secrets.AWS_PUBLIC_SUBNET_2 }},
+            BucketName=${{ secrets.AWS_BUCKET_NAME }},
+            TimeoutPeriod=${{ secrets.TIMEOUT_PERIOD }},
+            VpcId=${{ secrets.AWS_VPC_ID }}
