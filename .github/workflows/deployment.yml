@@ -31,8 +31,8 @@ jobs:
 
       - name: build-package
         run: |
-          apt-get update -qy
-          apt install zip -y
+          sudo apt-get update -qy
+          sudo apt install zip -y
           pip3 install -r requirements.txt -t ./package
           zip -r $CI_PROJECT_DIR/handler.zip . --exclude .gitlab-ci.yml --exclude ".git*" --exclude .gitignore --exclude requirements.txt --exclude README.md --exclude "tests/*" --exclude stack.yaml
 
