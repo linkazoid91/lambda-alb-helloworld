@@ -20,7 +20,7 @@ Resources:
     Properties:
       Handler: app.lambda_handler
       Runtime: python3.8
-      CodeUri: !Sub 's3://${BucketName}/handler.zip
+      CodeUri: !Sub "s3://${BucketName}/handler.zip"
       Description: 'lambda-api-helloworld lambda function'
       Role: !GetAtt LambdaServiceRole.Arn
       Timeout: !Ref TimeoutPeriod
