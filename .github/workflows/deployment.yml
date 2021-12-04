@@ -31,16 +31,14 @@ jobs:
 
       - name: build-package
         run: |
-          sudo apt-get update -qy
-          sudo apt install zip -y
           pip3 install -r requirements.txt -t ./package
-          zip -r $CI_PROJECT_DIR/handler.zip . --exclude .gitlab-ci.yml --exclude ".git*" --exclude .gitignore --exclude requirements.txt --exclude README.md --exclude "tests/*" --exclude stack.yaml
+          zip -r ./handler.zip . --exclude .gitlab-ci.yml --exclude ".git*" --exclude .gitignore --exclude requirements.txt --exclude README.md --exclude "tests/*" --exclude stack.yaml
 
       - name: create-artifact
         uses: actions/upload-artifact@v2
         with:
-          name: package.zip
-          path: ./package.zip
+          name: handler.zip
+          path: ./handler.zip
 
   deploy:
     runs-on: 	ubuntu-latest
