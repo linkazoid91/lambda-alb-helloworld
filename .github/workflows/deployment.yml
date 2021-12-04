@@ -32,7 +32,7 @@ jobs:
       - name: build-package
         run: |
           pip3 install -r requirements.txt -t ./package
-          zip -r ./handler.zip . --exclude .gitlab-ci.yml --exclude ".git*" --exclude .gitignore --exclude requirements.txt --exclude README.md --exclude "tests/*" --exclude stack.yaml
+          zip -r $(pwd)/handler.zip lambda_handler.py package/ --exclude "*__pycache__*"
 
       - name: create-artifact
         uses: actions/upload-artifact@v2
@@ -52,6 +52,11 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+
+      - name: fetch-artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: handler.zip
 
       - name: upload-handler
         env:
