@@ -1,45 +1,7 @@
 name: lambda-alb-helloworld
-
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+on: workflow_dispatch
 
 jobs:
-
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: checkout-repo
-        uses: actions/checkout@v2
-
-      - name: unit-testing
-        run: |
-          python3 -V # Print python version for debug
-          pip3 install pytest
-          pip3 install -r requirements.txt
-          pytest --verbose
-
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-    steps:
-      - name: checkout-repo
-        uses: actions/checkout@v2
-
-      - name: build-package
-        run: |
-          pip3 install -r requirements.txt -t ./package
-          zip -r $(pwd)/handler.zip lambda_handler.py package/ --exclude "*__pycache__*"
-
-      - name: create-artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: handler.zip
-          path: ./handler.zip
 
   deploy:
     runs-on: 	ubuntu-latest
