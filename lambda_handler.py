@@ -17,3 +17,5 @@ def hello_world():
     return {
         "message": "Eat Shit Patrick"
     }
+
+#run(host='localhost', port=8080, debug=True)
