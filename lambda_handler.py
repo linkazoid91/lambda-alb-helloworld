@@ -15,5 +15,5 @@ lambda_handler = make_lambda_handler(app)
 @route('/')
 def hello_world():
     return {
-        "message": "Hello World"
+        "message": "Eat Shit Patrick"
     }
