@@ -4,5 +4,6 @@ import sys
 import pytest
 import lambda_handler
 
+
 def test_index() -> None:
-    assert lambda_handler.hello_world()['message'] == 'Hello World'
+    assert lambda_handler.hello_world()['message'] == 'Eat Shit Patrick'
